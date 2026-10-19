@@ -42,9 +42,11 @@
     "files": [
       "dist/**/*",
       "electron/**/*",
+      "public/app-icon.ico",
       "package.json"
     ],
     "win": {
+      "icon": "public/app-icon.ico",
       "target": [
         "nsis"
       ]

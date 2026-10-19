@@ -2,7 +2,15 @@ import { useEffect, useState, type CSSProperties } from 'react'
 import './App.css'
 
 type Language = 'en' | 'ceb' | 'maoy'
+type Theme = 'green' | 'blue' | 'violet' | 'maroon'
 type Rule = { title: string; details: string; points?: string[] }
+const themes: { id: Theme; label: string }[] = [
+  { id: 'green', label: 'COMLAB Gold' },
+  { id: 'blue', label: 'Ocean Blue' },
+  { id: 'violet', label: 'Violet' },
+  { id: 'maroon', label: 'Maroon' },
+]
+const isTheme = (value: string | null): value is Theme => themes.some((option) => option.id === value)
 const MIN_TEXT_SCALE = 0.5
 const MAX_TEXT_SCALE = 2.5
 const TEXT_SCALE_STEP = 0.1
@@ -164,6 +172,10 @@ function App() {
   const [started, setStarted] = useState(false)
   const [currentRule, setCurrentRule] = useState(0)
   const [language, setLanguage] = useState<Language>('en')
+  const [theme, setTheme] = useState<Theme>(() => {
+    const savedTheme = window.localStorage.getItem('comlab-color-theme')
+    return isTheme(savedTheme) ? savedTheme : 'green'
+  })
   const [textScale, setTextScale] = useState(1)
   const [darkMode, setDarkMode] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
@@ -202,6 +214,10 @@ function App() {
     document.documentElement.lang = language === 'maoy' ? 'ceb' : language
   }, [language])
 
+  useEffect(() => {
+    window.localStorage.setItem('comlab-color-theme', theme)
+  }, [theme])
+
   const startReading = () => {
     setCurrentRule(0)
     setStarted(true)
@@ -216,9 +232,11 @@ function App() {
   return (
     <main
       className={`app-screen ${started ? 'reading-screen' : 'cover-screen'} ${darkMode ? 'dark-mode' : ''}`}
+      data-theme={theme}
       style={{ '--text-scale': textScale } as CSSProperties}
     >
       {!started ? (
+        <>
         <section className="cover-content" aria-label="Computer laboratory rules introduction">
           <div className="cover-tools">
             <label className="language-control">
@@ -232,6 +250,11 @@ function App() {
             <div className="accessibility-tools" role="group" aria-label="Text and display settings">
               <button className="text-size-button" type="button" aria-label={text.sizeDown} onClick={decreaseText} disabled={textScale <= MIN_TEXT_SCALE} title={`Text size: ${Math.round(textScale * 100)}%`}>A−</button>
               <button className="text-size-button" type="button" aria-label={text.sizeUp} onClick={increaseText} disabled={textScale >= MAX_TEXT_SCALE} title={`Text size: ${Math.round(textScale * 100)}%`}>A+</button>
+              <label className="theme-control">
+                <select className="theme-select" aria-label="Color theme" title="Color theme" value={theme} onChange={(event) => setTheme(event.target.value as Theme)}>
+                  {themes.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
+                </select>
+              </label>
               <button className={`contrast-button ${darkMode ? 'selected' : ''}`} type="button" aria-label="Toggle dark mode" title="Dark mode" aria-pressed={darkMode} onClick={() => setDarkMode((value) => !value)}>☾</button>
             </div>
           </div>
@@ -253,11 +276,11 @@ function App() {
               </span>
               <span className="folder-paper paper-three"><span>LAB ETIQUETTE</span><i>04—08</i></span>
               <span className="folder-paper paper-two"><span>USING THE LAB</span><i>09—15</i></span>
-              <span className="folder-paper paper-one"><span>{text.rulesLabel.toUpperCase()}</span><i>21</i></span>
+              <span className="folder-paper paper-one"><span>LAB RULES</span></span>
               <span className="folder-front">
-                <span className="folder-brand"><span className="folder-brand-icon">✓</span> {text.coverSubtitle.toUpperCase()}</span>
+                <span className="folder-brand">{text.coverSubtitle.toUpperCase()}</span>
                 <span className="folder-card-title">Lab rules<br />&amp; regulations</span>
-                <span className="folder-card-count"><span className="folder-status" /> {text.rulesLabel.toUpperCase()}</span>
+                <span className="folder-card-count"><span className="folder-status" /> STUDENT GUIDE</span>
               </span>
             </span>
             <span className="folder-caption">{folderOpen ? text.folderOpen : text.folderCaption}</span>
@@ -269,8 +292,9 @@ function App() {
               {text.startReading} <span aria-hidden="true">→</span>
             </button>
           </div>
-          <div className="cover-footnote"><span className="footnote-check">✓</span> {text.rulesLabel} <span className="footnote-separator">·</span> {text.timeLabel}</div>
         </section>
+        <footer className="cover-footer">Computer Laboratory</footer>
+        </>
       ) : (
         <section className="reader" aria-label="Student rules and regulations">
           <div className="reader-main">
@@ -291,6 +315,11 @@ function App() {
               <div className="accessibility-tools" role="group" aria-label="Text and display settings">
                 <button className="text-size-button" type="button" aria-label={text.sizeDown} onClick={decreaseText} disabled={textScale <= MIN_TEXT_SCALE} title={`Text size: ${Math.round(textScale * 100)}%`}>A−</button>
                 <button className="text-size-button" type="button" aria-label={text.sizeUp} onClick={increaseText} disabled={textScale >= MAX_TEXT_SCALE} title={`Text size: ${Math.round(textScale * 100)}%`}>A+</button>
+                <label className="theme-control">
+                  <select className="theme-select" aria-label="Color theme" title="Color theme" value={theme} onChange={(event) => setTheme(event.target.value as Theme)}>
+                    {themes.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
+                  </select>
+                </label>
                 <button className={`contrast-button ${darkMode ? 'selected' : ''}`} type="button" aria-label="Toggle dark mode" title="Dark mode" aria-pressed={darkMode} onClick={() => setDarkMode((value) => !value)}>☾</button>
               </div>
             </div>

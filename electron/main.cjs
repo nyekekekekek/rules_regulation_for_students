@@ -8,6 +8,7 @@ function createWindow() {
     minWidth: 360,
     minHeight: 600,
     title: 'Computer Lab Rules',
+    icon: path.join(__dirname, '..', 'public', 'app-icon.ico'),
     autoHideMenuBar: true,
     backgroundColor: '#fbfcf9',
     webPreferences: {
